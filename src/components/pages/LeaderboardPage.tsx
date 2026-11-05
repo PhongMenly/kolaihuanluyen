@@ -10,7 +10,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AdminMemberDialog, type MemberBrief } from "@/components/AdminMemberDialog";
 import { gradeBatch } from "@/fn/gradeBatch";
 import { Loader2, Sparkles } from "lucide-react";
-import { ALL_LESSONS, DAYS } from "@/lib/lessons";
+import { DAYS, courseFor } from "@/lib/lessons";
 import leaderboardHero from "@/assets/leaderboard-hero.jpg";
 
 interface LeaderRow {
@@ -23,6 +23,8 @@ interface LeaderRow {
   watched_count: number;
   /** Điểm riêng của từng ngày, ví dụ { "ngay-1": 9.5 } */
   day_scores: Record<string, number> | null;
+  /** Ngày hoàn tất đăng ký — quyết định học khoá Skill hay Subagent */
+  onboarded_at?: string | null;
 }
 
 /** Điểm của từng ngày — chỉ hiện ngày đã có điểm. */
@@ -128,7 +130,7 @@ export function LeaderboardPage() {
     const { data } = await supabase
       .from("profiles")
       .select(
-        "id, display_name, avatar_url, total_points, grade_sum, submission_count, watched_count, day_scores",
+        "id, display_name, avatar_url, total_points, grade_sum, submission_count, watched_count, day_scores, onboarded_at",
       )
       // Thứ hạng tính theo điểm chấm. Bằng điểm thì ai nộp nhiều ngày hơn
       // đứng trên; vẫn bằng thì ai nộp sớm hơn đứng trên.
@@ -306,7 +308,7 @@ export function LeaderboardPage() {
                           </div>
                           <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                             <PlayCircle className="h-2.5 w-2.5" />
-                            {r.watched_count}/{ALL_LESSONS.length}
+                            {r.watched_count}/{courseFor(r.onboarded_at).lessons.length}
                           </span>
                         </div>
                         <div className="mt-1">

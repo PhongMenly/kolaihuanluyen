@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Card } from "@/components/ui/card";
-import { ALL_LESSONS, DAYS, COURSE_INTRO, currentDeadline, dayLabel } from "@/lib/lessons";
+import { currentDeadline, dayLabel } from "@/lib/lessons";
+import { useCourse } from "@/hooks/useCourse";
 import { PlayCircle } from "lucide-react";
 import { CoGiMoi } from "@/components/CoGiMoi";
 
@@ -38,6 +39,7 @@ const BADGES: BadgeDef[] = [
 export function HomePage() {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { days: DAYS, lessons: ALL_LESSONS, intro: COURSE_INTRO } = useCourse();
   const [rank, setRank] = useState(0);
 
   const loadRank = useCallback(async () => {
@@ -68,7 +70,7 @@ export function HomePage() {
   const started = watched + subs > 0;
 
   const ctx = { subs, watched, rank, total };
-  const next = currentDeadline();
+  const next = currentDeadline(new Date(), DAYS);
 
   return (
     <div className="mx-auto max-w-[980px] space-y-6">

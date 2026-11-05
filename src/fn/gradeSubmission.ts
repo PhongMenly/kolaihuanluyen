@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
-import { findDay, dayLabel } from "@/lib/lessons";
+import { courseFor, findDay, dayLabel } from "@/lib/lessons";
 import {
   GRADING_MODEL,
   GRADING_SYSTEM_PROMPT,
@@ -118,9 +118,6 @@ export const gradeSubmission = createServerFn({ method: "POST" })
     const user = userData?.user;
     if (!user) throw new Error("Phiên đăng nhập đã hết hạn.");
 
-    const day = findDay(data.lessonKey);
-    if (!day) throw new Error("Không tìm thấy bài tập.");
-
     const { data: sub } = await supabase
       .from("submissions")
       .select("doc_url, graded_at")
@@ -133,9 +130,13 @@ export const gradeSubmission = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, onboarded_at")
       .eq("id", user.id)
       .maybeSingle();
+
+    // Đề bài lấy theo khoá của học viên: Skill hay Subagent
+    const day = findDay(data.lessonKey, courseFor(profile?.onboarded_at).days);
+    if (!day) throw new Error("Không tìm thấy bài tập.");
 
     const studentName = profile?.display_name ?? "bạn";
 

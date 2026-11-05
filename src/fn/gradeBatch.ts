@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { findDay, dayLabel } from "@/lib/lessons";
+import { courseFor, findDay, dayLabel } from "@/lib/lessons";
 import {
   GRADING_MODEL,
   GRADING_SYSTEM_PROMPT,
@@ -89,14 +89,15 @@ async function gradeOne(
   apiKey: string,
   row: { user_id: string; lesson_key: string; doc_url: string },
 ): Promise<"ok" | "error"> {
-  const day = findDay(row.lesson_key);
-  if (!day) return "error";
-
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name")
+    .select("display_name, onboarded_at")
     .eq("id", row.user_id)
     .maybeSingle();
+
+  // Đề bài lấy theo khoá của học viên: Skill hay Subagent
+  const day = findDay(row.lesson_key, courseFor(profile?.onboarded_at).days);
+  if (!day) return "error";
 
   const brief = buildAssignmentBrief(
     dayLabel(day.day),

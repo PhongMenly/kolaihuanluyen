@@ -28,7 +28,8 @@ import {
   AdminReviewSlot,
 } from "@/components/ReviewComment";
 import { toast } from "sonner";
-import { DAYS, POINTS_PER_SUBMISSION, dayLabel, submitLockState } from "@/lib/lessons";
+import { POINTS_PER_SUBMISSION, dayLabel, submitLockState } from "@/lib/lessons";
+import { useCourse } from "@/hooks/useCourse";
 import { GRADING_DELAY_MS, type GradeOutcome } from "@/lib/grading";
 import { gradeSubmission } from "@/fn/gradeSubmission";
 
@@ -60,6 +61,7 @@ function isValidUrl(url: string) {
 }
 
 export function SubmissionsPage() {
+  const { days: DAYS } = useCourse();
   const { user } = useAuth();
   const { isAdmin } = useIsAdmin();
   const reviewerProfile = useReviewer();
@@ -361,7 +363,7 @@ export function SubmissionsPage() {
           const draft = drafts[day.key] ?? "";
           const dirty = draft.trim() !== (existing?.doc_url ?? "");
           const working = busy === day.key;
-          const lock = submitLockState(day, submittedKeys, watched);
+          const lock = submitLockState(day, submittedKeys, watched, new Date(), DAYS);
           const open = !lock.locked;
           const watchedInDay = day.lessons.filter((l) => watched.has(l.key)).length;
           const missingVideo = watchedInDay < day.lessons.length;

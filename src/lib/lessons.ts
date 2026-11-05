@@ -34,6 +34,10 @@ export interface Day {
   assignment: string;
   /** Danh sách cụ thể phải có trong bản Google Docs nộp lên. */
   deliverables: string[];
+  /** Sơ đồ tóm tắt riêng của ngày — bỏ trống thì lấy từ SO_DO theo key. */
+  soDo?: BuocSoDo[];
+  /** Lời chúc riêng của ngày — bỏ trống thì lấy từ LOI_CHUC theo key. */
+  loiChuc?: string[];
 }
 
 export const COURSE_OVERVIEW = {
@@ -296,8 +300,8 @@ const LOI_CHUC: Record<string, string[]> = {
 };
 
 /** Một câu chúc ngẫu nhiên hợp với ngày đang học. */
-export function loiChucNgauNhien(dayKey: string): string {
-  const ds = LOI_CHUC[dayKey] ?? ["Xong một bài. Đi tiếp thôi."];
+export function loiChucNgauNhien(day: Day): string {
+  const ds = day.loiChuc ?? LOI_CHUC[day.key] ?? ["Xong một bài. Đi tiếp thôi."];
   return ds[Math.floor(Math.random() * ds.length)];
 }
 
@@ -349,17 +353,249 @@ export const SO_DO: Record<string, BuocSoDo[]> = {
 /** Tất cả video của mọi ngày, gộp phẳng. */
 export const ALL_LESSONS: Lesson[] = DAYS.flatMap((d) => d.lessons);
 
+// ─────────────────────────────────────────────────────────────
+// KHOÁ SUBAGENT — dành cho tài khoản vào học chính thức từ 05/11/2026
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * 8 video về Subagent trên kênh @Phongmenlyaigoglobalus, xếp từ cũ tới mới.
+ * Khoá bài nộp dùng lại "ngay-1".."ngay-4" để khiên, điểm và bảng xếp hạng
+ * chạy như khoá cũ. Mỗi học viên chỉ học MỘT khoá nên không bao giờ trùng.
+ */
+export const SUBAGENT_DAYS: Day[] = [
+  {
+    key: "ngay-1",
+    day: 1,
+    title: "Ngày 1 — Subagent là gì",
+    subtitle: "Hiểu kiềng 3 chân Skill · MCP · Sub-agent, rồi xem một kỹ sư SpaceX điều khiển 20 AI Agent.",
+    lessons: [
+      {
+        key: "sa1-b1",
+        code: "1.1",
+        title: "3 công cụ Claude nâng cao: Skill · MCP · Sub-agent",
+        description:
+          "Vì sao dùng Claude mãi mà AI vẫn chưa làm thay được việc: bạn chưa có đủ kiềng 3 chân Skill, MCP và Sub-agent. Hiểu từng cái làm gì và ghép lại ra sao.",
+        youtubeId: "jYKzQePWbO8",
+        duration: "14 phút",
+      },
+      {
+        key: "sa1-b2",
+        code: "1.2",
+        title: "Điều khiển 20 AI Agent — cách Lauren Tan (SpaceX) xây đội",
+        description:
+          "Xem AI như cộng sự, phê duyệt tự động, đóng gói quy trình thành Skill, một Agent quản lý điều phối các Sub-agent, đưa hệ thống lên Cloud chạy 24/7, giữ an toàn và tối ưu chi phí.",
+        youtubeId: "yZCawhPmP1I",
+        duration: "16 phút",
+      },
+    ],
+    assignment: "Hiểu Subagent khác gì chatbot và vẽ ra đội Subagent đầu tiên bạn muốn có.",
+    deliverables: [
+      "Giải thích bằng lời của bạn: Skill, MCP và Sub-agent khác nhau thế nào",
+      "Liệt kê 5 việc bạn đang làm tay mỗi tuần có thể giao cho Subagent",
+      "Vẽ sơ đồ một Agent quản lý và 3 Sub-agent đầu tiên, mỗi Sub-agent làm một việc",
+    ],
+    soDo: [
+      { icon: "brain", tieuDe: "Hiểu 3 chân", mota: "Skill · MCP · Sub-agent" },
+      { icon: "search", tieuDe: "Học cách SpaceX", mota: "Một quản lý, nhiều Sub-agent" },
+      { icon: "repeat", tieuDe: "Tìm việc lặp lại", mota: "5 việc làm tay mỗi tuần" },
+      { icon: "file-text", tieuDe: "Nộp bài", mota: "Sơ đồ đội Subagent" },
+    ],
+    loiChuc: [
+      "Xong một bài. Bạn vừa hiểu vì sao AI của người khác làm được việc thật.",
+      "Chatbot trả lời câu hỏi, Subagent làm xong việc. Bạn đã thấy khác biệt.",
+      "Một quản lý, nhiều Sub-agent — bạn đang nghĩ như người điều hành rồi đó.",
+    ],
+  },
+  {
+    key: "ngay-2",
+    day: 2,
+    title: "Ngày 2 — Subagent làm video",
+    subtitle: "Giao trọn việc tạo video và edit video cho Subagent, bạn chỉ việc nhận kết quả.",
+    lessons: [
+      {
+        key: "sa2-b1",
+        code: "2.1",
+        title: "Subagent tự động tạo video AI từ A–Z",
+        description:
+          "Cài bộ câu lệnh Subagent, kết nối AI Agent với công cụ tạo video, giao việc từ kịch bản tới dựng hình và xuất bản, kèm cách tối ưu chi phí khi chạy tự động.",
+        youtubeId: "-1F_ytj5CNk",
+        duration: "16 phút",
+      },
+      {
+        key: "sa2-b2",
+        code: "2.2",
+        title: "Subagent tự động edit video: cắt khoảng lặng, phụ đề, hiệu ứng",
+        description:
+          "Nạp Skill, cấp quyền thư mục làm việc, giao việc cắt khoảng lặng, thêm phụ đề, chỉnh màu và hiệu ứng. Xem token tiêu hao thật, dạy Subagent học phong cách từ video mẫu và edit hàng loạt.",
+        youtubeId: "Zn46ByXjZfI",
+        duration: "17 phút",
+      },
+    ],
+    assignment: "Giao cho Subagent làm ra một video hoàn chỉnh, từ tạo tới edit.",
+    deliverables: [
+      "Cài bộ câu lệnh Subagent tạo video và kết nối được với một công cụ tạo video",
+      "Cho Subagent tạo một video ngắn cho đúng sản phẩm hoặc chủ đề của bạn",
+      "Cho Subagent edit video đó: cắt khoảng lặng, thêm phụ đề, gửi link video thành phẩm",
+    ],
+    soDo: [
+      { icon: "download", tieuDe: "Cài câu lệnh", mota: "Subagent tạo video" },
+      { icon: "video", tieuDe: "Tạo video", mota: "Kịch bản tới dựng hình" },
+      { icon: "sparkles", tieuDe: "Edit tự động", mota: "Cắt lặng, phụ đề, hiệu ứng" },
+      { icon: "send", tieuDe: "Nộp link video", mota: "Một video thành phẩm" },
+    ],
+    loiChuc: [
+      "Một video ra lò mà bạn không phải ngồi dựng. Đó là sức mạnh của Subagent.",
+      "Từ giờ edit video là việc giao đi, không phải việc thức khuya.",
+      "Bạn vừa chuyển từ người làm video sang người giao việc làm video.",
+    ],
+  },
+  {
+    key: "ngay-3",
+    day: 3,
+    title: "Ngày 3 — Dựng đội Subagent",
+    subtitle: "Tạo nhân sự AI tự làm việc theo lịch, rồi dựng cả đội 20 Subagent chạy được luôn.",
+    lessons: [
+      {
+        key: "sa3-b1",
+        code: "3.1",
+        title: "Tạo nhân sự ChatGPT Agent tự làm việc thay bạn",
+        description:
+          "Setup AI Agent từ số 0: đặt lịch tự chạy theo khung giờ, phân luồng việc AI tự quyết và việc cần người duyệt, nạp bộ não Subagent từ cẩm nang, demo tự trả lời bình luận và edit video.",
+        youtubeId: "m6NfjUFt5qU",
+        duration: "20 phút",
+      },
+      {
+        key: "sa3-b2",
+        code: "3.2",
+        title: "Setup đội 20 Subagent làm việc tự động",
+        description:
+          "Thiết lập Subagent kết hợp MCP trên Claude Desktop: cài đặt, kết nối công cụ, nạp cẩm nang huấn luyện, chạy quy trình tạo nhân vật, hình ảnh và video tự động theo khung giờ cố định mỗi ngày.",
+        youtubeId: "XnlS3U1hqss",
+        duration: "23 phút",
+      },
+    ],
+    assignment: "Dựng đội Subagent của riêng bạn và cho nó tự chạy theo lịch.",
+    deliverables: [
+      "Cài Claude Desktop (hoặc ChatGPT Agent) và kết nối ít nhất một công cụ qua MCP",
+      "Tạo ít nhất 3 Subagent, mỗi bạn một việc rõ ràng, ghi ra việc nào AI tự quyết, việc nào cần bạn duyệt",
+      "Đặt lịch cho một Subagent tự chạy mỗi ngày, chụp màn hình kết quả lần chạy đầu",
+    ],
+    soDo: [
+      { icon: "download", tieuDe: "Cài và nối MCP", mota: "Claude Desktop + công cụ" },
+      { icon: "package", tieuDe: "Tạo 3 Subagent", mota: "Mỗi bạn một việc" },
+      { icon: "repeat", tieuDe: "Đặt lịch chạy", mota: "Tự làm mỗi ngày" },
+      { icon: "file-text", tieuDe: "Nộp bài", mota: "Ảnh kết quả lần đầu" },
+    ],
+    loiChuc: [
+      "Bạn vừa có nhân sự đầu tiên không cần trả lương.",
+      "Một mình nhưng có cả đội. Đó là cách làm của người kinh doanh một mình thời AI.",
+      "Việc chạy theo lịch thì bạn rảnh tay lo phần bán hàng.",
+    ],
+  },
+  {
+    key: "ngay-4",
+    day: 4,
+    title: "Ngày 4 — Vận hành cả công ty AI",
+    subtitle: "Ghép các Subagent thành một công ty số tự vận hành, rồi dùng chính đội đó để thử nghiệm và ra quyết định.",
+    lessons: [
+      {
+        key: "sa4-b1",
+        code: "4.1",
+        title: "Quy trình xây đội AI Agent tự động hoá toàn bộ công việc",
+        description:
+          "Tạo workspace như một công ty số, cho AI học DNA thương hiệu để viết bài và trả lời bình luận đúng giọng, Agent tổng điều phối các Sub-agent, quản lý tiến độ bằng Notion và điều khiển từ xa bằng điện thoại.",
+        youtubeId: "wQHMGdYhegk",
+        duration: "27 phút",
+      },
+      {
+        key: "sa4-b2",
+        code: "4.2",
+        title: "Dùng Subagent thử nghiệm mô hình tạo ảnh AI",
+        description:
+          "Giao Subagent chạy tạo ảnh hàng loạt với Nano Banana 2, 2.1 và GPT Image 2.5 bằng cùng bộ lệnh và ảnh gốc, rồi so độ chân thực khuôn mặt, trang phục, chi tiết để chọn mô hình tốt nhất.",
+        youtubeId: "Xd5-Vx7HvSk",
+        duration: "17 phút",
+      },
+    ],
+    assignment: "Ghép đội Subagent thành một hệ thống tự vận hành và dùng nó làm một việc thật cho công việc của bạn.",
+    deliverables: [
+      "Dựng một Agent tổng điều phối giao việc cho các Sub-agent của bạn",
+      "Cho AI học giọng thương hiệu của bạn và viết một bài đăng đúng giọng",
+      "Giao đội Subagent chạy một thử nghiệm thật (so mô hình ảnh, so câu lệnh…) và ghi lại kết luận",
+      "Điều khiển hệ thống từ điện thoại ít nhất một lần, chụp màn hình làm bằng chứng",
+    ],
+    soDo: [
+      { icon: "layout", tieuDe: "Dựng công ty số", mota: "Một Agent tổng điều phối" },
+      { icon: "brain", tieuDe: "Nạp DNA", mota: "Giọng thương hiệu của bạn" },
+      { icon: "search", tieuDe: "Chạy thử nghiệm", mota: "Để đội tự so và kết luận" },
+      { icon: "trending-up", tieuDe: "Điều khiển từ xa", mota: "Ra lệnh bằng điện thoại" },
+    ],
+    loiChuc: [
+      "Bài cuối rồi. Bạn không còn dùng AI nữa — bạn đang điều hành nó.",
+      "Một công ty số chạy bằng Subagent. Giờ đem nó đi kiếm tiền thôi.",
+      "Cả chặng đường tới đây bạn đều tự đi. Đội Subagent sẽ đi cùng bạn phần còn lại.",
+    ],
+  },
+];
+
+// ─────────────────────────────────────────────────────────────
+// CHỌN KHOÁ THEO TÀI KHOẢN
+// ─────────────────────────────────────────────────────────────
+
+export type CourseId = "skill" | "subagent";
+
+export interface Course {
+  id: CourseId;
+  days: Day[];
+  lessons: Lesson[];
+  intro: typeof COURSE_INTRO;
+}
+
+/**
+ * Mốc chuyển khoá: ai hoàn tất đăng ký (onboarded_at) từ 00:00 ngày 05/11/2026
+ * giờ Việt Nam trở đi thì học khoá Subagent. Người vào trước giữ khoá Skill.
+ */
+export const SUBAGENT_FROM = "2026-11-04T17:00:00Z";
+
+export const COURSES: Record<CourseId, Course> = {
+  skill: { id: "skill", days: DAYS, lessons: ALL_LESSONS, intro: COURSE_INTRO },
+  subagent: {
+    id: "subagent",
+    days: SUBAGENT_DAYS,
+    lessons: SUBAGENT_DAYS.flatMap((d) => d.lessons),
+    intro: {
+      youtubeId: "ehR6ZsEy5is",
+      eyebrow: "Bắt đầu từ đây",
+      title: "Subagent đã lớn thế nào trong 2 tháng",
+      description:
+        "Dành 3 phút xem video này trước. Bạn sẽ thấy Subagent làm được gì, rồi đi lần lượt 4 ngày học từ hiểu khái niệm tới vận hành cả một công ty AI.",
+    },
+  },
+};
+
+/** Khoá học của một tài khoản, tính theo ngày hoàn tất đăng ký. */
+export function courseIdFor(onboardedAt: string | null | undefined): CourseId {
+  if (!onboardedAt) return "skill";
+  return new Date(onboardedAt).getTime() >= new Date(SUBAGENT_FROM).getTime()
+    ? "subagent"
+    : "skill";
+}
+
+export function courseFor(onboardedAt: string | null | undefined): Course {
+  return COURSES[courseIdFor(onboardedAt)];
+}
+
 export function findLesson(key: string): Lesson | undefined {
   return ALL_LESSONS.find((l) => l.key === key);
 }
 
-export function findDay(key: string): Day | undefined {
-  return DAYS.find((d) => d.key === key);
+export function findDay(key: string, days: Day[] = DAYS): Day | undefined {
+  return days.find((d) => d.key === key);
 }
 
 /** Ngày chứa video này. */
-export function dayOfLesson(lessonKey: string): Day | undefined {
-  return DAYS.find((d) => d.lessons.some((l) => l.key === lessonKey));
+export function dayOfLesson(lessonKey: string, days: Day[] = DAYS): Day | undefined {
+  return days.find((d) => d.lessons.some((l) => l.key === lessonKey));
 }
 
 export const POINTS_PER_SUBMISSION = 10;
@@ -430,6 +666,7 @@ export function dayLockState(
   day: number,
   submittedKeys: Set<string>,
   now: Date = new Date(),
+  days: Day[] = DAYS,
 ): LockReason {
   if (MO_TOAN_BO) return { locked: false };
 
@@ -437,7 +674,7 @@ export function dayLockState(
     return { locked: true, kind: "date", openDate: formatOpenDate(day) };
   }
   // Ngày trước chưa nộp thì chưa được học tiếp
-  for (const d of DAYS) {
+  for (const d of days) {
     if (d.day < day && !submittedKeys.has(d.key)) {
       return { locked: true, kind: "prev", needDay: d.day };
     }
@@ -454,10 +691,11 @@ export function submitLockState(
   submittedKeys: Set<string>,
   watchedKeys: Set<string>,
   now: Date = new Date(),
+  days: Day[] = DAYS,
 ): LockReason {
   if (MO_TOAN_BO) return { locked: false };
 
-  const base = dayLockState(day.day, submittedKeys, now);
+  const base = dayLockState(day.day, submittedKeys, now, days);
   if (base.locked) return base;
 
   const done = day.lessons.filter((l) => watchedKeys.has(l.key)).length;
@@ -474,14 +712,17 @@ export interface DeadlineInfo {
 }
 
 /** Tất cả ngày kèm hạn nộp, theo thứ tự. */
-export function allDeadlines(now: Date = new Date()): DeadlineInfo[] {
-  return DAYS.map((day) => {
+export function allDeadlines(now: Date = new Date(), days: Day[] = DAYS): DeadlineInfo[] {
+  return days.map((day) => {
     const deadline = getDayDeadline(day.day);
     return { day, deadline, overdue: now.getTime() > deadline.getTime() };
   });
 }
 
 /** Ngày đang tới hạn: ngày gần nhất chưa quá hạn. Hết hạn tất cả thì null. */
-export function currentDeadline(now: Date = new Date()): DeadlineInfo | null {
-  return allDeadlines(now).find((d) => !d.overdue) ?? null;
+export function currentDeadline(
+  now: Date = new Date(),
+  days: Day[] = DAYS,
+): DeadlineInfo | null {
+  return allDeadlines(now, days).find((d) => !d.overdue) ?? null;
 }

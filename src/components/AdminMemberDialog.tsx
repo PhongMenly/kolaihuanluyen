@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { DAYS, dayLabel, findDay } from "@/lib/lessons";
+import { COURSES, courseFor, dayLabel, type Day } from "@/lib/lessons";
 
 export interface MemberBrief {
   id: string;
@@ -48,6 +48,8 @@ export function AdminMemberDialog({
 }) {
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [zaloName, setZaloName] = useState<string | null>(null);
+  // Khoá của thành viên này: Skill hay Subagent
+  const [DAYS, setDays] = useState<Day[]>(COURSES.skill.days);
   const [loading, setLoading] = useState(false);
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [scores, setScores] = useState<Record<string, string>>({});
@@ -64,7 +66,7 @@ export function AdminMemberDialog({
           "lesson_key, doc_url, updated_at, ai_score, ai_feedback, grade_error, admin_score, admin_feedback",
         )
         .eq("user_id", member.id),
-      supabase.from("profiles").select("zalo_name").eq("id", member.id).maybeSingle(),
+      supabase.from("profiles").select("zalo_name, onboarded_at").eq("id", member.id).maybeSingle(),
     ]);
 
     const map: Record<string, Row> = {};
@@ -79,6 +81,7 @@ export function AdminMemberDialog({
     setScores(s);
     setNotes(n);
     setZaloName(profRes.data?.zalo_name ?? null);
+    setDays(courseFor(profRes.data?.onboarded_at).days);
     setLoading(false);
   }, [member]);
 
@@ -151,7 +154,7 @@ export function AdminMemberDialog({
               <div className="space-y-3">
                 {DAYS.map((day) => {
                   const row = rows[day.key];
-                  const d = findDay(day.key);
+                  const d = day;
 
                   if (!row) {
                     return (

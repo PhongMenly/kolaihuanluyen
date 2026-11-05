@@ -20,15 +20,14 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/PageHeader";
 import { SoDoBaiHoc } from "@/components/SoDoBaiHoc";
 import { toast } from "sonner";
+import { useCourse } from "@/hooks/useCourse";
 import {
-  DAYS,
-  ALL_LESSONS,
   POINTS_PER_VIDEO,
   POINTS_PER_SUBMISSION,
   getDayDeadline,
   dayLabel,
-  dayLockState,
-  dayOfLesson,
+  dayLockState as dayLockStateTheoKhoa,
+  dayOfLesson as dayOfLessonTheoKhoa,
   type Day,
   type Lesson,
   type LockReason,
@@ -37,10 +36,20 @@ import {
 
 export function VideosPage() {
   const { user } = useAuth();
+  // Khoá của người đang học: Skill (vào trước 05/11/2026) hay Subagent
+  const { days: DAYS, lessons: ALL_LESSONS } = useCourse();
+  const dayOfLesson = (key: string) => dayOfLessonTheoKhoa(key, DAYS);
+  const dayLockState = (day: number, subs: Set<string>) =>
+    dayLockStateTheoKhoa(day, subs, new Date(), DAYS);
   const [watched, setWatched] = useState<Set<string>>(new Set());
   const [submitted, setSubmitted] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const [selected, setSelected] = useState<string>(ALL_LESSONS[0]?.key ?? "");
+
+  // Hồ sơ nạp xong mới biết khoá — bài đang chọn không thuộc khoá thì về bài đầu
+  useEffect(() => {
+    if (!ALL_LESSONS.some((l) => l.key === selected)) setSelected(ALL_LESSONS[0]?.key ?? "");
+  }, [ALL_LESSONS, selected]);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -88,7 +97,7 @@ export function VideosPage() {
     if (!ok) return;
 
     const day = dayOfLesson(lesson.key);
-    if (day) toast.success(loiChucNgauNhien(day.key), { duration: 6000 });
+    if (day) toast.success(loiChucNgauNhien(day), { duration: 6000 });
 
     // Bài cuối của ngày thì DỪNG LẠI tại chỗ để hiện dấu hoàn tất,
     // không nhảy sang ngày sau. Khối bài tập ngay dưới đã có nút nộp.
@@ -108,7 +117,10 @@ export function VideosPage() {
   const doneSubs = ALL_LESSONS.filter((l) => submitted.has(l.key)).length;
   const percent = total === 0 ? 0 : Math.round(((doneVideos + doneSubs) / (total * 2)) * 100);
 
-  const current = useMemo(() => ALL_LESSONS.find((l) => l.key === selected) ?? null, [selected]);
+  const current = useMemo(
+    () => ALL_LESSONS.find((l) => l.key === selected) ?? null,
+    [ALL_LESSONS, selected],
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[248px_1fr]">

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Clock3, Check, Flag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCourse } from "@/hooks/useCourse";
 import { currentDeadline, dayLabel, type DeadlineInfo } from "@/lib/lessons";
 
 function remainingUntil(deadline: Date, now: Date) {
@@ -25,6 +26,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
  */
 export function CountdownBar() {
   const { user } = useAuth();
+  const { days } = useCourse();
   const [now, setNow] = useState(() => new Date());
   const [submitted, setSubmitted] = useState<Set<string>>(new Set());
 
@@ -58,7 +60,7 @@ export function CountdownBar() {
     };
   }, [user, loadSubmissions]);
 
-  const info: DeadlineInfo | null = currentDeadline(now);
+  const info: DeadlineInfo | null = currentDeadline(now, days);
 
   if (!info) {
     return (

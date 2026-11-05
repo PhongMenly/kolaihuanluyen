@@ -438,7 +438,7 @@ function KieuHang({ buoc }: { buoc: BuocSoDo[] }) {
  * màn hình. Mỗi ngày một kiểu bố cục khác nhau.
  */
 export function SoDoBaiHoc({ day }: { day: Day }) {
-  const buoc = SO_DO[day.key];
+  const buoc = day.soDo ?? SO_DO[day.key];
   if (!buoc || buoc.length !== 4) return null;
 
   const kieu = KIEU[day.key] ?? "truc";
