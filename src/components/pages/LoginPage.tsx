@@ -5,7 +5,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
-import heroImg from "@/assets/login-hero.jpg";
 
 export function LoginPage() {
   const { user } = useAuth();
@@ -55,15 +54,24 @@ export function LoginPage() {
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] rounded-3xl overflow-hidden border border-border/60 shadow-[0_40px_120px_-30px_oklch(0.55_0.24_295/0.5)] bg-card/40 backdrop-blur-2xl">
         {/* LEFT — Hero image (hidden on small mobile, shows from sm+) */}
         <div className="relative hidden sm:block min-h-[280px] lg:min-h-[680px] overflow-hidden">
-          <img
-            src={heroImg}
-            alt="KOL AI System — Hệ thống huấn luyện cấp tốc của những chiến thần"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+          {/* Ảnh bìa = logo bộ não, đặt giữa trên nền tím đậm */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 50% 45%, oklch(0.42 0.22 300 / 0.55), transparent 62%), linear-gradient(160deg, #12081F 0%, #1A0A2E 55%, #0A0A0F 100%)",
+            }}
           />
-          {/* Blend overlays — tuned for a light-background portrait */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/50" />
-          <div className="absolute inset-0 mix-blend-soft-light opacity-50 bg-gradient-to-br from-primary/40 via-transparent to-orange-500/25" />
+          <div className="absolute inset-0 flex items-center justify-center p-10">
+            <div className="relative w-[78%] max-w-[460px]">
+              <div className="absolute inset-[12%] rounded-full bg-primary/35 blur-[80px]" />
+              <img
+                src={logo}
+                alt="KOL AI System — Hệ thống huấn luyện cấp tốc của những chiến thần"
+                className="relative w-full h-auto drop-shadow-[0_0_40px_oklch(0.65_0.25_310/0.7)]"
+              />
+            </div>
+          </div>
 
           {/* Bottom caption */}
           <div className="absolute inset-x-0 bottom-0 p-6 lg:p-10">
