@@ -73,8 +73,12 @@ export function AnhMinhHoa({
 /**
  * Tin mới nhất nằm trên cùng.
  * Thêm tin: chèn một dòng vào đầu mảng, đặt key chưa dùng bao giờ.
+ * 05/11/2026: làm mới theo khoá Subagent — bắt đầu trống.
  */
-export const TIN_MOI: TinMoi[] = [
+export const TIN_MOI: TinMoi[] = [];
+
+/** Tin của khoá Skill (31/08–08/09/2026) — tạm ẩn, không xoá. */
+export const TIN_MOI_KHOA_SKILL: TinMoi[] = [
   {
     key: "2026-09-08-mo-het",
     ngay: "08/09",

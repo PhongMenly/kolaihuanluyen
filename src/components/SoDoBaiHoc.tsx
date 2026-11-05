@@ -49,6 +49,10 @@ const KIEU: Record<string, "truc" | "doc" | "luoi" | "hang"> = {
   "ngay-3": "luoi",
   "ngay-4": "hang",
   "ngay-5": "truc",
+  "sa-ngay-1": "truc",
+  "sa-ngay-2": "doc",
+  "sa-ngay-3": "luoi",
+  "sa-ngay-4": "hang",
 };
 
 /** Cắt chuỗi thành nhiều dòng, mỗi dòng không quá `toiDa` ký tự. */

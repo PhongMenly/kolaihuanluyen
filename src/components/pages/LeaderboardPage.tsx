@@ -10,7 +10,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AdminMemberDialog, type MemberBrief } from "@/components/AdminMemberDialog";
 import { gradeBatch } from "@/fn/gradeBatch";
 import { Loader2, Sparkles } from "lucide-react";
-import { DAYS, courseFor } from "@/lib/lessons";
+import { courseFor } from "@/lib/lessons";
 import leaderboardHero from "@/assets/leaderboard-hero.jpg";
 
 interface LeaderRow {
@@ -29,7 +29,8 @@ interface LeaderRow {
 
 /** Điểm của từng ngày — chỉ hiện ngày đã có điểm. */
 export function DayScores({ scores }: { scores: Record<string, number> | null }) {
-  const items = DAYS.map((d) => [d.day, scores?.[d.key]] as const).filter(
+  // Khoá đang mở (Subagent) — điểm khoá Skill cũ tạm ẩn
+  const items = courseFor(null).days.map((d) => [d.day, scores?.[d.key]] as const).filter(
     (x): x is readonly [number, number] => typeof x[1] === "number",
   );
   if (items.length === 0) return null;

@@ -359,12 +359,13 @@ export const ALL_LESSONS: Lesson[] = DAYS.flatMap((d) => d.lessons);
 
 /**
  * 8 video về Subagent trên kênh @Phongmenlyaigoglobalus, xếp từ cũ tới mới.
- * Khoá bài nộp dùng lại "ngay-1".."ngay-4" để khiên, điểm và bảng xếp hạng
- * chạy như khoá cũ. Mỗi học viên chỉ học MỘT khoá nên không bao giờ trùng.
+ * Khoá bài nộp "sa-ngay-1".."sa-ngay-4" — tách hẳn khỏi bài nộp khoá Skill
+ * ("ngay-1".."ngay-5") để mọi người bắt đầu lại từ 0 mà không xoá dữ liệu cũ.
+ * Hàm recalc_points trong database chỉ đếm các mã này (supabase/KHOA_SUBAGENT_VE_0.sql).
  */
 export const SUBAGENT_DAYS: Day[] = [
   {
-    key: "ngay-1",
+    key: "sa-ngay-1",
     day: 1,
     title: "Ngày 1 — Subagent là gì",
     subtitle: "Hiểu kiềng 3 chân Skill · MCP · Sub-agent, rồi xem một kỹ sư SpaceX điều khiển 20 AI Agent.",
@@ -407,7 +408,7 @@ export const SUBAGENT_DAYS: Day[] = [
     ],
   },
   {
-    key: "ngay-2",
+    key: "sa-ngay-2",
     day: 2,
     title: "Ngày 2 — Subagent làm video",
     subtitle: "Giao trọn việc tạo video và edit video cho Subagent, bạn chỉ việc nhận kết quả.",
@@ -450,7 +451,7 @@ export const SUBAGENT_DAYS: Day[] = [
     ],
   },
   {
-    key: "ngay-3",
+    key: "sa-ngay-3",
     day: 3,
     title: "Ngày 3 — Dựng đội Subagent",
     subtitle: "Tạo nhân sự AI tự làm việc theo lịch, rồi dựng cả đội 20 Subagent chạy được luôn.",
@@ -493,7 +494,7 @@ export const SUBAGENT_DAYS: Day[] = [
     ],
   },
   {
-    key: "ngay-4",
+    key: "sa-ngay-4",
     day: 4,
     title: "Ngày 4 — Vận hành cả công ty AI",
     subtitle: "Ghép các Subagent thành một công ty số tự vận hành, rồi dùng chính đội đó để thử nghiệm và ra quyết định.",
@@ -554,8 +555,17 @@ export interface Course {
 /**
  * Mốc chuyển khoá: ai hoàn tất đăng ký (onboarded_at) từ 00:00 ngày 05/11/2026
  * giờ Việt Nam trở đi thì học khoá Subagent. Người vào trước giữ khoá Skill.
+ * (Chỉ có tác dụng khi AN_KHOA_SKILL = false.)
  */
 export const SUBAGENT_FROM = "2026-11-04T17:00:00Z";
+
+/**
+ * TẠM ẨN KHOÁ SKILL (05/11/2026): mọi tài khoản, cũ hay mới, chỉ thấy khoá Subagent.
+ * Nội dung khoá Skill vẫn giữ nguyên ở trên, bài nộp cũ vẫn còn trong database.
+ * Muốn mở lại khoá Skill cho người vào trước 05/11: đổi thành false
+ * (và chạy lại hàm recalc_points bản cũ — xem supabase/KHOA_SUBAGENT_VE_0.sql).
+ */
+export const AN_KHOA_SKILL = true;
 
 export const COURSES: Record<CourseId, Course> = {
   skill: { id: "skill", days: DAYS, lessons: ALL_LESSONS, intro: COURSE_INTRO },
@@ -575,6 +585,7 @@ export const COURSES: Record<CourseId, Course> = {
 
 /** Khoá học của một tài khoản, tính theo ngày hoàn tất đăng ký. */
 export function courseIdFor(onboardedAt: string | null | undefined): CourseId {
+  if (AN_KHOA_SKILL) return "subagent";
   if (!onboardedAt) return "skill";
   return new Date(onboardedAt).getTime() >= new Date(SUBAGENT_FROM).getTime()
     ? "subagent"
